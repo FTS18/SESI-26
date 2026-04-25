@@ -11,8 +11,8 @@ module.exports = {
   theme: {
     container: {
       center: true,
-      padding: '2rem',
-      screens: { '2xl': '1400px' },
+      padding: '1.5rem',
+      screens: { '2xl': '1320px' },
     },
     extend: {
       colors: {
@@ -73,18 +73,16 @@ module.exports = {
         sm: 'calc(var(--radius) - 2px)',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-grotesk)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sora)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-chivo)', 'var(--font-sora)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
-      boxShadow: {
-        brutal: '4px 4px 0 0 hsl(var(--foreground))',
-        'brutal-sm': '2px 2px 0 0 hsl(var(--foreground))',
-        'brutal-lg': '6px 6px 0 0 hsl(var(--foreground))',
-        'brutal-xl': '8px 8px 0 0 hsl(var(--foreground))',
-        'brutal-green': '4px 4px 0 0 hsl(var(--primary))',
-        'brutal-green-lg': '6px 6px 0 0 hsl(var(--primary))',
-        'brutal-inset': 'inset 4px 4px 0 0 hsl(var(--foreground))',
+      fontSize: {
+        '2xs': ['0.6875rem', { lineHeight: '1rem' }],
+      },
+      letterSpacing: {
+        tighter: '-0.04em',
+        tightest: '-0.06em',
       },
       keyframes: {
         'accordion-down': {
@@ -103,7 +101,7 @@ module.exports = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        marquee: 'marquee 40s linear infinite',
+        marquee: 'marquee 60s linear infinite',
       },
     },
   },

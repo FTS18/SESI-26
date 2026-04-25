@@ -1,18 +1,19 @@
 import './globals.css'
-import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+import { Chivo, Sora, JetBrains_Mono } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 
-const inter = Inter({
+const sora = Sora({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-sora',
   display: 'swap',
+  weight: ['300', '400', '500', '600', '700'],
 })
-const grotesk = Space_Grotesk({
+const chivo = Chivo({
   subsets: ['latin'],
-  variable: '--font-grotesk',
+  variable: '--font-chivo',
   display: 'swap',
-  weight: ['500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800', '900'],
 })
 const mono = JetBrains_Mono({
   subsets: ['latin'],
@@ -37,8 +38,8 @@ export const metadata = {
 
 export const viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fbfbf7' },
-    { media: '(prefers-color-scheme: dark)', color: '#0d0d0a' },
+    { media: '(prefers-color-scheme: light)', color: '#f7f6f0' },
+    { media: '(prefers-color-scheme: dark)', color: '#0d0e10' },
   ],
 }
 
@@ -47,7 +48,7 @@ export default function RootLayout({ children }) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${grotesk.variable} ${mono.variable}`}
+      className={`${sora.variable} ${chivo.variable} ${mono.variable}`}
     >
       <head>
         <script

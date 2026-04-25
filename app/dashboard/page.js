@@ -24,7 +24,6 @@ import {
   Recycle,
   X,
   Calendar,
-  Maximize2,
   AlertTriangle,
 } from 'lucide-react'
 import {
@@ -62,7 +61,7 @@ import {
 } from '@/components/ui/sheet'
 
 import { Navbar } from '@/components/arasaka/navbar'
-import { BrutalCard, BrutalTag } from '@/components/arasaka/brutal-card'
+import { Card, Tag, SectionEyebrow } from '@/components/arasaka/swiss'
 import { cn } from '@/lib/utils'
 import {
   BLOCKS,
@@ -84,56 +83,60 @@ const MODULE_COLOR = {
   rvm: 'hsl(var(--chart-5))',
 }
 
-const MODULE_ICON = {
-  hvac: AirVent,
-  lighting: Lightbulb,
-  ev: PlugZap,
-  solar: Sun,
-  water: Droplets,
-  rvm: Recycle,
-}
-
 const fmtNum = (n) => {
   if (n == null) return '—'
   if (Math.abs(n) >= 1000) return (n / 1000).toFixed(1) + 'k'
   return Math.round(n).toLocaleString('en-IN')
 }
 
+const STATUS_TONE = {
+  optimal: 'primary',
+  attention: 'warning',
+  critical: 'destructive',
+}
+
 /* -------------------------------------------------------------------------- */
-/*  Small Reused Pieces                                                       */
+/*  Reused                                                                    */
 /* -------------------------------------------------------------------------- */
 
-function KpiTile({ label, value, suffix, delta, tone = 'foreground', icon: Icon, sub }) {
+function KpiTile({ index, label, value, suffix, delta, icon: Icon, sub }) {
   const positive = delta != null && delta >= 0
   return (
-    <BrutalCard className="relative overflow-hidden p-5 brutal-lift">
-      <div className="absolute inset-y-0 right-0 w-1.5 bg-primary" aria-hidden />
+    <div className="relative h-full bg-card p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
             {label}
           </p>
-          <p className="mt-2 font-mono text-3xl font-bold tracking-tight">
+          <p className="font-display num-tabular mt-3 text-3xl font-semibold tracking-tighter">
             {value}
-            {suffix && <span className="ml-1 text-base text-muted-foreground">{suffix}</span>}
+            {suffix && (
+              <span className="ml-1 text-base font-medium text-muted-foreground">{suffix}</span>
+            )}
           </p>
-          {sub && (
-            <p className="mt-1 text-xs text-muted-foreground">{sub}</p>
+          {sub && <p className="mt-1.5 text-xs text-muted-foreground">{sub}</p>}
+        </div>
+        <div className="flex flex-col items-end gap-3">
+          <span className="font-mono text-[10px] font-medium tracking-[0.18em] text-muted-foreground">
+            K/{String(index).padStart(2, '0')}
+          </span>
+          {Icon && (
+            <div className="flex h-9 w-9 items-center justify-center border border-border bg-background">
+              <Icon className="h-4 w-4" aria-hidden />
+            </div>
           )}
         </div>
-        {Icon && (
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center border-2 border-foreground bg-background">
-            <Icon className="h-5 w-5" aria-hidden />
-          </div>
-        )}
       </div>
       {delta != null && (
-        <div className="mt-3">
+        <div className="mt-4">
           <span
             className={cn(
-              'inline-flex items-center gap-1 border-2 border-foreground px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest',
-              positive ? 'bg-primary text-primary-foreground' : 'bg-destructive text-destructive-foreground',
+              'inline-flex items-center gap-1 border px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.2em]',
+              positive
+                ? 'border-primary/40 bg-primary/8 text-primary'
+                : 'border-destructive/40 bg-destructive/10 text-destructive',
             )}
+            style={{ borderRadius: 'var(--radius)' }}
           >
             {positive ? (
               <ArrowUpRight className="h-3 w-3" aria-hidden />
@@ -144,17 +147,20 @@ function KpiTile({ label, value, suffix, delta, tone = 'foreground', icon: Icon,
           </span>
         </div>
       )}
-    </BrutalCard>
+      <div className="absolute bottom-0 left-0 h-0.5 w-12 bg-primary" aria-hidden />
+    </div>
   )
 }
 
 function FrameHeader({ title, subtitle, right }) {
   return (
-    <div className="flex items-start justify-between gap-3 border-b-2 border-foreground p-4">
+    <div className="flex items-start justify-between gap-3 border-b border-border p-5">
       <div className="min-w-0">
-        <h3 className="font-display truncate text-base font-bold leading-tight">{title}</h3>
+        <h3 className="font-display truncate text-base font-semibold leading-tight tracking-tight">
+          {title}
+        </h3>
         {subtitle && (
-          <p className="mt-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <p className="mt-1 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
             {subtitle}
           </p>
         )}
@@ -169,7 +175,7 @@ function Sparkline({ data }) {
     <div className="h-12">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 4, right: 0, bottom: 0, left: 0 }}>
-          <Line type="monotone" dataKey="y" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+          <Line type="monotone" dataKey="y" stroke="hsl(var(--primary))" strokeWidth={1.6} dot={false} />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -180,26 +186,24 @@ function TooltipBox(props) {
   if (!props.active || !props.payload?.length) return null
   return (
     <div
-      className="border-2 border-foreground bg-popover p-2 font-mono text-[11px]"
-      style={{ borderRadius: 0, fontFamily: 'var(--font-mono)' }}
+      className="border border-border bg-popover p-2 font-mono text-[11px] shadow-sm"
+      style={{ borderRadius: 'var(--radius)', fontFamily: 'var(--font-mono)' }}
     >
-      <div className="mb-1 font-bold uppercase tracking-widest">{props.label}</div>
+      <div className="mb-1 font-medium uppercase tracking-[0.2em] text-muted-foreground">
+        {props.label}
+      </div>
       {props.payload.map((p, i) => (
         <div key={i} className="flex items-center justify-between gap-3">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2.5 w-2.5" style={{ background: p.color }} />
+            <span className="inline-block h-2 w-2" style={{ background: p.color }} />
             {p.name}
           </span>
-          <span className="font-bold">{fmtNum(p.value)}</span>
+          <span className="num-tabular font-semibold">{fmtNum(p.value)}</span>
         </div>
       ))}
     </div>
   )
 }
-
-/* -------------------------------------------------------------------------- */
-/*  Toggle pill                                                               */
-/* -------------------------------------------------------------------------- */
 
 function TogglePill({ active, onClick, children, color }) {
   return (
@@ -208,15 +212,19 @@ function TogglePill({ active, onClick, children, color }) {
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'inline-flex items-center gap-1.5 border-2 border-foreground px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest transition-all',
+        'inline-flex items-center gap-2 border px-3 py-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.2em] transition-colors',
         active
-          ? 'bg-foreground text-background brutal-shadow-sm'
-          : 'bg-background text-foreground hover:bg-muted',
+          ? 'border-foreground bg-foreground text-background'
+          : 'border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground',
       )}
-      style={{ borderRadius: 0 }}
+      style={{ borderRadius: 'var(--radius)' }}
     >
       {color && (
-        <span className="inline-block h-2.5 w-2.5" style={{ background: color }} aria-hidden />
+        <span
+          className="inline-block h-2 w-2 flex-shrink-0"
+          style={{ background: color, opacity: active ? 1 : 0.55 }}
+          aria-hidden
+        />
       )}
       {children}
     </button>
@@ -259,76 +267,63 @@ function BlockDrill({ block, rangeId, onClose }) {
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent
         side="right"
-        className="w-full max-w-xl overflow-y-auto border-l-2 border-foreground p-0 sm:max-w-xl"
+        className="w-full max-w-xl overflow-y-auto border-l border-border p-0 sm:max-w-xl"
         style={{ borderRadius: 0 }}
       >
         {block && summary && (
           <div className="flex h-full flex-col">
-            <SheetHeader className="border-b-2 border-foreground bg-foreground p-6 text-background">
+            <SheetHeader className="border-b border-border bg-card p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <BrutalTag tone="primary" className="mb-3">
-                    {block.kind}
-                  </BrutalTag>
-                  <SheetTitle className="font-display text-2xl font-bold tracking-tight text-background">
+                  <div className="flex items-center gap-3">
+                    <Tag tone="primary">{block.kind}</Tag>
+                    <Tag tone={STATUS_TONE[block.status]}>
+                      <span className="h-1.5 w-1.5 animate-pulse bg-current" aria-hidden />
+                      {STATUS_META[block.status].label}
+                    </Tag>
+                  </div>
+                  <SheetTitle className="font-display mt-4 text-3xl font-semibold tracking-tighter">
                     {block.name}
                   </SheetTitle>
-                  <SheetDescription className="mt-1 font-mono text-[10px] font-bold uppercase tracking-widest text-background/70">
+                  <SheetDescription className="mt-2 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
                     Block ID: {block.id} · {block.area.toLocaleString()} sqft · {block.capacity} occupancy
                   </SheetDescription>
                 </div>
                 <button
                   onClick={onClose}
-                  className="border-2 border-background bg-background p-1.5 text-foreground brutal-shadow-sm hover:translate-x-[-1px] hover:translate-y-[-1px]"
+                  className="flex h-8 w-8 items-center justify-center border border-border bg-background hover:bg-muted"
                   aria-label="Close drill-down"
-                  style={{ borderRadius: 0 }}
+                  style={{ borderRadius: 'var(--radius)' }}
                 >
                   <X className="h-4 w-4" aria-hidden />
                 </button>
               </div>
-              <div className="mt-3">
-                <span
-                  className={cn(
-                    'inline-flex items-center gap-1 border-2 border-background px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest',
-                    STATUS_META[block.status].tone,
-                  )}
-                >
-                  <span className="h-1.5 w-1.5 animate-pulse bg-current" aria-hidden />
-                  {STATUS_META[block.status].label}
-                </span>
-              </div>
             </SheetHeader>
 
             <div className="space-y-5 p-6">
-              <div className="grid grid-cols-2 gap-0 border-2 border-foreground">
+              <div className="grid grid-cols-2 gap-px border border-border bg-border">
                 {[
-                  { k: 'TOTAL', v: fmtNum(summary.total), s: 'kWh' },
-                  { k: 'SOLAR', v: fmtNum(summary.solar), s: 'kWh' },
-                  { k: 'SAVINGS', v: summary.savingsPct + '%', s: 'vs baseline' },
-                  { k: 'CO₂ AVOID', v: fmtNum(summary.co2), s: 'kg' },
-                ].map((kpi, i) => (
-                  <div
-                    key={kpi.k}
-                    className={cn(
-                      'p-4',
-                      i % 2 === 1 && 'border-l-2 border-foreground',
-                      i >= 2 && 'border-t-2 border-foreground',
-                    )}
-                  >
-                    <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  { k: 'Total', v: fmtNum(summary.total), s: 'kWh' },
+                  { k: 'Solar', v: fmtNum(summary.solar), s: 'kWh' },
+                  { k: 'Savings', v: summary.savingsPct + '%', s: 'vs baseline' },
+                  { k: 'CO₂ avoid', v: fmtNum(summary.co2), s: 'kg' },
+                ].map((kpi) => (
+                  <div key={kpi.k} className="bg-card p-4">
+                    <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
                       {kpi.k}
                     </p>
-                    <p className="mt-1 font-mono text-xl font-bold">{kpi.v}</p>
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{kpi.s}</p>
+                    <p className="font-display num-tabular mt-1 text-xl font-semibold tracking-tighter">
+                      {kpi.v}
+                    </p>
+                    <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {kpi.s}
+                    </p>
                   </div>
                 ))}
               </div>
 
-              <BrutalCard>
-                <FrameHeader
-                  title="Energy by Module"
-                  subtitle={`Range: ${rangeId.toUpperCase()}`}
-                />
+              <Card>
+                <FrameHeader title="Energy by Module" subtitle={`Range · ${rangeId.toUpperCase()}`} />
                 <div className="h-[220px] p-3">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
@@ -336,13 +331,13 @@ function BlockDrill({ block, rangeId, onClose }) {
                       layout="vertical"
                       margin={{ top: 6, right: 14, left: 8, bottom: 6 }}
                     >
-                      <CartesianGrid stroke="hsl(var(--foreground) / 0.16)" horizontal={false} />
+                      <CartesianGrid stroke="hsl(var(--border))" horizontal={false} strokeDasharray="3 3" />
                       <XAxis
                         type="number"
                         stroke="hsl(var(--muted-foreground))"
                         fontSize={11}
                         tickLine={false}
-                        axisLine={{ stroke: 'hsl(var(--foreground))', strokeWidth: 2 }}
+                        axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
                       />
                       <YAxis
                         type="category"
@@ -350,14 +345,11 @@ function BlockDrill({ block, rangeId, onClose }) {
                         stroke="hsl(var(--foreground))"
                         fontSize={10}
                         tickLine={false}
-                        axisLine={{ stroke: 'hsl(var(--foreground))', strokeWidth: 2 }}
+                        axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
                         width={70}
                       />
-                      <Tooltip
-                        cursor={{ fill: 'hsl(var(--accent))' }}
-                        content={<TooltipBox />}
-                      />
-                      <Bar dataKey="value" stroke="hsl(var(--foreground))" strokeWidth={2}>
+                      <Tooltip cursor={{ fill: 'hsl(var(--accent))' }} content={<TooltipBox />} />
+                      <Bar dataKey="value">
                         {moduleBars.map((b, i) => (
                           <Cell key={i} fill={b.color} />
                         ))}
@@ -365,35 +357,32 @@ function BlockDrill({ block, rangeId, onClose }) {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-              </BrutalCard>
+              </Card>
 
-              <BrutalCard>
-                <FrameHeader
-                  title="Consumption Trend"
-                  subtitle={`${rangeId.toUpperCase()} · TOTAL kWh`}
-                />
+              <Card>
+                <FrameHeader title="Consumption Trend" subtitle={`${rangeId.toUpperCase()} · Total kWh`} />
                 <div className="h-[200px] p-3">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={series} margin={{ top: 6, right: 8, left: -8, bottom: 0 }}>
                       <defs>
                         <linearGradient id="drillGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.55} />
+                          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
                           <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid stroke="hsl(var(--foreground) / 0.18)" vertical={false} />
+                      <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
                       <XAxis
                         dataKey="t"
                         stroke="hsl(var(--muted-foreground))"
                         fontSize={10}
                         tickLine={false}
-                        axisLine={{ stroke: 'hsl(var(--foreground))', strokeWidth: 2 }}
+                        axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
                       />
                       <YAxis
                         stroke="hsl(var(--muted-foreground))"
                         fontSize={10}
                         tickLine={false}
-                        axisLine={{ stroke: 'hsl(var(--foreground))', strokeWidth: 2 }}
+                        axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
                       />
                       <Tooltip content={<TooltipBox />} />
                       <Area
@@ -401,38 +390,46 @@ function BlockDrill({ block, rangeId, onClose }) {
                         dataKey="total"
                         name="TOTAL"
                         stroke="hsl(var(--primary))"
-                        strokeWidth={2.4}
+                        strokeWidth={2}
                         fill="url(#drillGrad)"
                       />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
-              </BrutalCard>
+              </Card>
 
               <div>
-                <h4 className="mb-3 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Recent Alerts
+                <h4 className="mb-3 font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                  Recent alerts
                 </h4>
                 {blockAlerts.length === 0 ? (
-                  <BrutalCard className="p-4">
-                    <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                  <Card className="p-4">
+                    <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
                       No active alerts. System nominal.
                     </p>
-                  </BrutalCard>
+                  </Card>
                 ) : (
                   <div className="space-y-2">
                     {blockAlerts.map((a) => (
-                      <BrutalCard key={a.id} className="flex items-start gap-3 p-3">
-                        <BrutalTag className={SEVERITY_META[a.severity].tone}>
+                      <Card key={a.id} className="flex items-start gap-3 p-3">
+                        <Tag
+                          tone={
+                            a.severity === 'critical'
+                              ? 'destructive'
+                              : a.severity === 'attention'
+                              ? 'warning'
+                              : 'muted'
+                          }
+                        >
                           {SEVERITY_META[a.severity].label}
-                        </BrutalTag>
+                        </Tag>
                         <div className="min-w-0 flex-1">
-                          <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
                             {a.module} · {a.ts}
                           </p>
                           <p className="mt-1 text-sm">{a.message}</p>
                         </div>
-                      </BrutalCard>
+                      </Card>
                     ))}
                   </div>
                 )}
@@ -456,9 +453,8 @@ export default function DashboardPage() {
     () => new Set(MODULES.map((m) => m.id)),
   )
   const [drillBlock, setDrillBlock] = React.useState(null)
-  const [tick, setTick] = React.useState(0) // used by refresh button to force recompute
+  const [tick, setTick] = React.useState(0)
 
-  // "Live" feel: ticks every 12s
   React.useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 12000)
     return () => clearInterval(id)
@@ -506,7 +502,6 @@ export default function DashboardPage() {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
-      // never empty
       if (next.size === 0) next.add(id)
       return next
     })
@@ -517,47 +512,44 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <main className="container space-y-6 pb-12 pt-24">
+      <main className="container space-y-6 pb-16 pt-24">
         {/* Page header */}
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
+        <div className="grid items-end gap-6 border-b border-border pb-8 md:grid-cols-12">
+          <div className="md:col-span-8">
+            <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/"
-                className="inline-flex items-center gap-1.5 border-2 border-foreground bg-background px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-widest brutal-shadow-sm hover:translate-x-[-1px] hover:translate-y-[-1px]"
-                style={{ borderRadius: 0 }}
+                className="inline-flex items-center gap-1.5 border border-border bg-card px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground"
+                style={{ borderRadius: 'var(--radius)' }}
               >
                 <ArrowLeft className="h-3 w-3" aria-hidden />
                 Home
               </Link>
-              <BrutalTag tone="primary">
-                <Activity className="h-3 w-3" aria-hidden />
-                LIVE CONSOLE
-              </BrutalTag>
+              <SectionEyebrow index="00" label="Console · Live" />
             </div>
-            <h1 className="font-display mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            <h1 className="font-display mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tighter sm:text-5xl">
               Campus Operating Layer
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">
               Live KPIs, anomaly alerts and per-block drill-downs across every module of the
               ARASAKA blueprint.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 md:col-span-4 md:justify-end">
             <Button
               size="sm"
               variant="outline"
               onClick={refresh}
-              style={{ borderRadius: 0 }}
-              className="h-9 border-2 border-foreground bg-background font-mono text-xs font-bold uppercase tracking-widest brutal-shadow-sm hover:translate-x-[-1px] hover:translate-y-[-1px] hover:bg-background"
+              className="h-9 border border-border bg-card font-mono text-[11px] font-medium uppercase tracking-[0.2em] hover:bg-muted"
+              style={{ borderRadius: 'var(--radius)' }}
             >
               <RefreshCcw className="mr-2 h-3.5 w-3.5" aria-hidden />
               Refresh
             </Button>
             <Button
               size="sm"
-              style={{ borderRadius: 0 }}
-              className="h-9 border-2 border-foreground bg-foreground font-mono text-xs font-bold uppercase tracking-widest text-background brutal-shadow-sm hover:translate-x-[-1px] hover:translate-y-[-1px]"
+              className="h-9 bg-foreground font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-background hover:bg-foreground/90"
+              style={{ borderRadius: 'var(--radius)' }}
             >
               <Download className="mr-2 h-3.5 w-3.5" aria-hidden />
               Export CSV
@@ -566,14 +558,18 @@ export default function DashboardPage() {
         </div>
 
         {/* Filter bar */}
-        <BrutalCard>
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b-2 border-foreground p-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" aria-hidden />
-              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                Time Range
+        <Card>
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border p-4">
+            <div className="flex items-center gap-3">
+              <Calendar className="h-4 w-4 text-muted-foreground" aria-hidden />
+              <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                Time range
               </span>
-              <div className="flex items-center border-2 border-foreground" role="tablist">
+              <div
+                className="flex items-center border border-border"
+                role="tablist"
+                style={{ borderRadius: 'var(--radius)' }}
+              >
                 {TIME_RANGES.map((r) => (
                   <button
                     key={r.id}
@@ -581,10 +577,10 @@ export default function DashboardPage() {
                     aria-selected={timeRange === r.id}
                     onClick={() => setTimeRange(r.id)}
                     className={cn(
-                      'border-r-2 border-foreground px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-widest transition-colors last:border-r-0',
+                      'border-r border-border px-3 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.2em] transition-colors last:border-r-0',
                       timeRange === r.id
                         ? 'bg-foreground text-background'
-                        : 'bg-background hover:bg-muted',
+                        : 'bg-card hover:bg-muted',
                     )}
                   >
                     {r.label}
@@ -592,30 +588,30 @@ export default function DashboardPage() {
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" aria-hidden />
-              <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <div className="flex items-center gap-3">
+              <Building2 className="h-4 w-4 text-muted-foreground" aria-hidden />
+              <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
                 Focus
               </span>
               <Select value={focusBlock} onValueChange={setFocusBlock}>
                 <SelectTrigger
-                  className="h-9 w-[180px] border-2 border-foreground font-mono text-xs font-bold uppercase tracking-widest brutal-shadow-sm"
-                  style={{ borderRadius: 0 }}
+                  className="h-9 w-[180px] border border-border bg-card font-mono text-[11px] font-medium uppercase tracking-[0.2em]"
+                  style={{ borderRadius: 'var(--radius)' }}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent
-                  className="border-2 border-foreground"
-                  style={{ borderRadius: 0 }}
+                  className="border border-border"
+                  style={{ borderRadius: 'var(--radius)' }}
                 >
-                  <SelectItem value="ALL" className="font-mono text-xs uppercase tracking-widest">
+                  <SelectItem value="ALL" className="font-mono text-[11px] uppercase tracking-[0.2em]">
                     All blocks
                   </SelectItem>
                   {BLOCKS.map((b) => (
                     <SelectItem
                       key={b.id}
                       value={b.id}
-                      className="font-mono text-xs uppercase tracking-widest"
+                      className="font-mono text-[11px] uppercase tracking-[0.2em]"
                     >
                       {b.name}
                     </SelectItem>
@@ -625,8 +621,8 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 p-4">
-            <Filter className="h-4 w-4" aria-hidden />
-            <span className="mr-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <Filter className="h-4 w-4 text-muted-foreground" aria-hidden />
+            <span className="mr-1 font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
               Modules
             </span>
             {MODULES.map((m) => (
@@ -640,19 +636,21 @@ export default function DashboardPage() {
               </TogglePill>
             ))}
           </div>
-        </BrutalCard>
+        </Card>
 
         {/* KPI row */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
           <KpiTile
+            index={1}
             label="Total Consumption"
             value={fmtNum(totals.total)}
             suffix="kWh"
             delta={-12.4}
             icon={Zap}
-            sub={`window: ${timeRange.toUpperCase()}`}
+            sub={`Window · ${timeRange.toUpperCase()}`}
           />
           <KpiTile
+            index={2}
             label="Savings vs Baseline"
             value={fmtNum(totals.savings)}
             suffix="kWh"
@@ -661,34 +659,36 @@ export default function DashboardPage() {
             sub={`${totals.savingsPct}% reduction`}
           />
           <KpiTile
+            index={3}
             label="Solar Generated"
             value={fmtNum(totals.solar)}
             suffix="kWh"
             delta={8.6}
             icon={Sun}
-            sub="across rooftops + canopies"
+            sub="rooftops + canopies"
           />
           <KpiTile
+            index={4}
             label="CO₂ Avoided"
             value={fmtNum(totals.co2)}
             suffix="kg"
             delta={9.1}
             icon={Leaf}
-            sub="grid-equiv emissions"
+            sub="grid-equivalent"
           />
         </div>
 
         {/* Main charts */}
-        <div className="grid gap-4 lg:grid-cols-3">
-          <BrutalCard className="lg:col-span-2">
+        <div className="grid gap-5 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
             <FrameHeader
               title="Energy by Source"
-              subtitle={`${timeRange.toUpperCase()} · STACKED · kWh`}
+              subtitle={`${timeRange.toUpperCase()} · Stacked · kWh`}
               right={
-                <BrutalTag tone="primary">
+                <Tag tone="primary">
                   <Activity className="h-3 w-3" aria-hidden />
-                  LIVE
-                </BrutalTag>
+                  Live
+                </Tag>
               }
             />
             <div className="h-[340px] p-3">
@@ -697,56 +697,69 @@ export default function DashboardPage() {
                   <defs>
                     {Object.entries(MODULE_COLOR).map(([k, c]) => (
                       <linearGradient key={k} id={`g-${k}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={c} stopOpacity={0.85} />
-                        <stop offset="100%" stopColor={c} stopOpacity={0.4} />
+                        <stop offset="0%" stopColor={c} stopOpacity={0.7} />
+                        <stop offset="100%" stopColor={c} stopOpacity={0.3} />
                       </linearGradient>
                     ))}
                   </defs>
-                  <CartesianGrid stroke="hsl(var(--foreground) / 0.16)" vertical={false} />
+                  <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="t"
                     stroke="hsl(var(--muted-foreground))"
                     fontSize={11}
                     tickLine={false}
-                    axisLine={{ stroke: 'hsl(var(--foreground))', strokeWidth: 2 }}
+                    axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
                   />
                   <YAxis
                     stroke="hsl(var(--muted-foreground))"
                     fontSize={11}
                     tickLine={false}
-                    axisLine={{ stroke: 'hsl(var(--foreground))', strokeWidth: 2 }}
+                    axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
                   />
                   <Tooltip content={<TooltipBox />} />
                   <Legend
-                    iconSize={10}
+                    iconSize={9}
                     iconType="square"
-                    wrapperStyle={{ fontSize: 11, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                    wrapperStyle={{
+                      fontSize: 11,
+                      fontFamily: 'var(--font-mono)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.18em',
+                    }}
                   />
                   {enabledModules.has('hvac') && (
-                    <Area type="monotone" dataKey="hvac" name="HVAC" stackId="1" stroke="hsl(var(--foreground))" strokeWidth={1.5} fill="url(#g-hvac)" />
+                    <Area type="monotone" dataKey="hvac" name="HVAC" stackId="1" stroke={MODULE_COLOR.hvac} strokeWidth={1.5} fill="url(#g-hvac)" />
                   )}
                   {enabledModules.has('lighting') && (
-                    <Area type="monotone" dataKey="lighting" name="LIGHTING" stackId="1" stroke="hsl(var(--foreground))" strokeWidth={1.5} fill="url(#g-lighting)" />
+                    <Area type="monotone" dataKey="lighting" name="LIGHTING" stackId="1" stroke={MODULE_COLOR.lighting} strokeWidth={1.5} fill="url(#g-lighting)" />
                   )}
                   {enabledModules.has('ev') && (
-                    <Area type="monotone" dataKey="ev" name="EV" stackId="1" stroke="hsl(var(--foreground))" strokeWidth={1.5} fill="url(#g-ev)" />
+                    <Area type="monotone" dataKey="ev" name="EV" stackId="1" stroke={MODULE_COLOR.ev} strokeWidth={1.5} fill="url(#g-ev)" />
                   )}
                   {enabledModules.has('water') && (
-                    <Area type="monotone" dataKey="water" name="WATER" stackId="1" stroke="hsl(var(--foreground))" strokeWidth={1.5} fill="url(#g-water)" />
+                    <Area type="monotone" dataKey="water" name="WATER" stackId="1" stroke={MODULE_COLOR.water} strokeWidth={1.5} fill="url(#g-water)" />
                   )}
                   {enabledModules.has('rvm') && (
-                    <Area type="monotone" dataKey="rvm" name="RVM" stackId="1" stroke="hsl(var(--foreground))" strokeWidth={1.5} fill="url(#g-rvm)" />
+                    <Area type="monotone" dataKey="rvm" name="RVM" stackId="1" stroke={MODULE_COLOR.rvm} strokeWidth={1.5} fill="url(#g-rvm)" />
                   )}
                   {enabledModules.has('solar') && (
-                    <Area type="monotone" dataKey="solar" name="SOLAR" stroke="hsl(var(--primary))" strokeWidth={2.4} fill="transparent" strokeDasharray="6 3" />
+                    <Area
+                      type="monotone"
+                      dataKey="solar"
+                      name="SOLAR"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      fill="transparent"
+                      strokeDasharray="5 3"
+                    />
                   )}
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-          </BrutalCard>
+          </Card>
 
-          <BrutalCard>
-            <FrameHeader title="Source Mix" subtitle={`${timeRange.toUpperCase()} · % SHARE`} />
+          <Card>
+            <FrameHeader title="Source Mix" subtitle={`${timeRange.toUpperCase()} · % share`} />
             <div className="h-[340px] p-3">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -758,7 +771,7 @@ export default function DashboardPage() {
                     innerRadius={56}
                     outerRadius={102}
                     paddingAngle={2}
-                    stroke="hsl(var(--foreground))"
+                    stroke="hsl(var(--background))"
                     strokeWidth={2}
                   >
                     {sourceMix.map((d, i) => (
@@ -768,36 +781,37 @@ export default function DashboardPage() {
                   <Legend
                     verticalAlign="bottom"
                     iconType="square"
-                    iconSize={10}
-                    wrapperStyle={{ fontSize: 11, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                    iconSize={9}
+                    wrapperStyle={{
+                      fontSize: 11,
+                      fontFamily: 'var(--font-mono)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.16em',
+                    }}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </div>
-          </BrutalCard>
+          </Card>
         </div>
 
         {/* Block ranking */}
-        <BrutalCard>
+        <Card>
           <FrameHeader
             title="Per-Block Performance"
-            subtitle="SAVINGS RANKING · kWh AVOIDED"
-            right={
-              <BrutalTag tone="outline">
-                {blocks.length} BLOCKS
-              </BrutalTag>
-            }
+            subtitle="Savings ranking · kWh avoided"
+            right={<Tag tone="muted">{blocks.length} blocks</Tag>}
           />
           <div className="h-[280px] p-3">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={blockRanking} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
-                <CartesianGrid stroke="hsl(var(--foreground) / 0.16)" vertical={false} />
+                <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
                 <XAxis
                   dataKey="name"
                   stroke="hsl(var(--muted-foreground))"
                   fontSize={10}
                   tickLine={false}
-                  axisLine={{ stroke: 'hsl(var(--foreground))', strokeWidth: 2 }}
+                  axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
                   interval={0}
                   angle={-12}
                   textAnchor="end"
@@ -807,127 +821,116 @@ export default function DashboardPage() {
                   stroke="hsl(var(--muted-foreground))"
                   fontSize={11}
                   tickLine={false}
-                  axisLine={{ stroke: 'hsl(var(--foreground))', strokeWidth: 2 }}
+                  axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
                 />
                 <Tooltip cursor={{ fill: 'hsl(var(--accent))' }} content={<TooltipBox />} />
-                <Bar
-                  dataKey="savings"
-                  name="SAVINGS"
-                  fill="hsl(var(--primary))"
-                  stroke="hsl(var(--foreground))"
-                  strokeWidth={2}
-                />
+                <Bar dataKey="savings" name="SAVINGS" fill="hsl(var(--primary))" radius={[1, 1, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </BrutalCard>
+        </Card>
 
         {/* Block grid */}
         <div>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-display text-xl font-bold tracking-tight">
-              Blocks
-              <span className="ml-2 font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                CLICK ANY BLOCK TO DRILL-DOWN
-              </span>
-            </h2>
+          <div className="mb-4 flex items-end justify-between">
+            <SectionEyebrow index="08" label="Blocks" />
+            <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+              Click any block to drill-down
+            </span>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {blocks.map((b) => (
+          <div className="grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+            {blocks.map((b, i) => (
               <button
                 key={b.id}
                 onClick={() => setDrillBlock(b)}
-                className="text-left"
+                className="group bg-card p-5 text-left transition-colors hover:bg-muted/40"
               >
-                <BrutalCard className="brutal-lift cursor-pointer">
-                  <div className="flex items-center justify-between border-b-2 border-foreground p-4">
-                    <div className="min-w-0">
-                      <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        {b.kind}
-                      </p>
-                      <h3 className="font-display mt-0.5 truncate text-base font-bold leading-tight">
-                        {b.name}
-                      </h3>
-                    </div>
-                    <span
-                      className={cn(
-                        'inline-flex items-center gap-1 border-2 border-foreground px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-widest',
-                        STATUS_META[b.status].tone,
-                      )}
-                    >
-                      {STATUS_META[b.status].label}
-                    </span>
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0">
+                    <p className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                      {b.kind}
+                    </p>
+                    <h3 className="font-display mt-0.5 truncate text-base font-semibold leading-tight tracking-tight">
+                      {b.name}
+                    </h3>
                   </div>
-                  <div className="space-y-3 p-4">
-                    <div>
-                      <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        Total · {timeRange.toUpperCase()}
-                      </p>
-                      <p className="mt-1 font-mono text-2xl font-bold tracking-tight">
-                        {fmtNum(b.total)}
-                        <span className="ml-1 text-xs text-muted-foreground">kWh</span>
-                      </p>
-                    </div>
-                    <Sparkline data={b.spark} />
-                    <div className="flex items-center justify-between border-t-2 border-foreground pt-3">
-                      <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-widest">
-                        <ArrowDownRight className="h-3 w-3 text-primary" aria-hidden />
-                        {b.savingsPct}% saved
-                      </span>
-                      <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        Drill <ChevronRight className="h-3 w-3" aria-hidden />
-                      </span>
-                    </div>
-                  </div>
-                </BrutalCard>
+                  <Tag tone={STATUS_TONE[b.status]} className="text-[9px]">
+                    {STATUS_META[b.status].label}
+                  </Tag>
+                </div>
+                <div className="mt-4">
+                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                    Total · {timeRange.toUpperCase()}
+                  </p>
+                  <p className="font-display num-tabular mt-1 text-3xl font-semibold tracking-tighter">
+                    {fmtNum(b.total)}
+                    <span className="ml-1 text-xs font-medium text-muted-foreground">kWh</span>
+                  </p>
+                </div>
+                <div className="mt-3">
+                  <Sparkline data={b.spark} />
+                </div>
+                <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+                  <span className="inline-flex items-center gap-1 font-mono text-[10px] font-medium uppercase tracking-[0.2em]">
+                    <ArrowDownRight className="h-3 w-3 text-primary" aria-hidden />
+                    <span className="text-primary">{b.savingsPct}%</span>
+                    <span className="text-muted-foreground">saved</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors group-hover:text-foreground">
+                    Drill <ChevronRight className="h-3 w-3" aria-hidden />
+                  </span>
+                </div>
               </button>
             ))}
           </div>
         </div>
 
         {/* Alerts */}
-        <BrutalCard>
+        <Card>
           <FrameHeader
             title="Anomaly & Event Log"
-            subtitle="SYSTEM-WIDE · LIVE STREAM"
+            subtitle="System-wide · live stream"
             right={
-              <BrutalTag tone="warning">
+              <Tag tone="warning">
                 <Bell className="h-3 w-3" aria-hidden />
-                {ALERTS.length} EVENTS
-              </BrutalTag>
+                {ALERTS.length} events
+              </Tag>
             }
           />
-          <ul className="divide-y-2 divide-foreground">
+          <ul className="divide-y divide-border">
             {ALERTS.map((a) => (
               <li
                 key={a.id}
                 className="flex flex-wrap items-center gap-3 p-4 transition-colors hover:bg-muted/40"
               >
-                <span
-                  className={cn(
-                    'inline-flex items-center gap-1 border-2 border-foreground px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest',
-                    SEVERITY_META[a.severity].tone,
-                  )}
+                <Tag
+                  tone={
+                    a.severity === 'critical'
+                      ? 'destructive'
+                      : a.severity === 'attention'
+                      ? 'warning'
+                      : 'muted'
+                  }
                 >
                   {a.severity === 'critical' && (
                     <AlertTriangle className="h-3 w-3" aria-hidden />
                   )}
                   {SEVERITY_META[a.severity].label}
-                </span>
-                <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                </Tag>
+                <span className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
                   {a.ts}
                 </span>
-                <span className="font-mono text-[11px] font-bold uppercase tracking-widest">
+                <span className="font-mono text-[11px] font-medium uppercase tracking-[0.18em]">
                   {a.block} · {a.module}
                 </span>
                 <span className="flex-1 text-sm">{a.message}</span>
                 <button
                   onClick={() => {
-                    const found = blocks.find((b) => b.name === a.block)
+                    const found = blocks.find((bl) => bl.name === a.block)
                     if (found) setDrillBlock(found)
                   }}
-                  className="inline-flex items-center gap-1 border-2 border-foreground bg-background px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest brutal-shadow-sm hover:translate-x-[-1px] hover:translate-y-[-1px]"
-                  style={{ borderRadius: 0 }}
+                  className="inline-flex items-center gap-1 border border-border bg-card px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.22em] hover:bg-muted"
+                  style={{ borderRadius: 'var(--radius)' }}
                 >
                   Inspect
                   <ChevronRight className="h-3 w-3" aria-hidden />
@@ -935,7 +938,7 @@ export default function DashboardPage() {
               </li>
             ))}
           </ul>
-        </BrutalCard>
+        </Card>
       </main>
 
       <BlockDrill
