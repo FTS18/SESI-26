@@ -8,7 +8,6 @@ import {
   ArrowRight,
   ArrowDown,
   ArrowUpRight,
-  CheckCircle2,
   Cpu,
   Cloud,
   Settings2,
@@ -45,7 +44,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 import { Navbar } from '@/components/arasaka/navbar'
 import { VoiceButton } from '@/components/arasaka/voice-button'
-import { Card, Tag, SectionEyebrow } from '@/components/arasaka/swiss'
+import { Card, Tag, SectionEyebrow, Kicker } from '@/components/arasaka/swiss'
 import {
   PROBLEMS,
   SOLUTIONS,
@@ -86,7 +85,7 @@ function SectionHeader({ index, label, title, description, action }) {
           <SectionEyebrow index={index} label={label} />
         </Reveal>
         <Reveal delay={0.05}>
-          <h2 className="font-display mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tighter sm:text-5xl md:text-[3.5rem]">
+          <h2 className="font-display mt-5 text-balance text-4xl font-semibold leading-[1.05] tracking-tighter sm:text-5xl md:text-[3.25rem]">
             {title}
           </h2>
         </Reveal>
@@ -113,12 +112,12 @@ function SectionHeader({ index, label, title, description, action }) {
 
 function MetaStrip() {
   const items = [
-    'EDITION 01 · 2026',
-    'CLIMATE-TECH BLUEPRINT',
-    '8 MODULES · ONE OPERATING LAYER',
-    '25% ENERGY CUT',
-    '₹2.4 CR ANNUAL · 4,200 t CO₂',
-    'VOICE-NAVIGABLE · WCAG-FRIENDLY',
+    'Edition 01 — 2026',
+    'Climate-tech blueprint',
+    '8 modules · one operating layer',
+    '25% energy reduction',
+    '₹2.4 Cr annual · 4,200 t CO₂',
+    'Voice-navigable · WCAG-friendly',
   ]
   const row = items.concat(items)
   return (
@@ -128,7 +127,7 @@ function MetaStrip() {
           {row.map((t, i) => (
             <span
               key={i}
-              className="inline-flex shrink-0 items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground"
+              className="inline-flex shrink-0 items-center gap-3 text-[12px] font-medium tracking-tight text-muted-foreground"
             >
               <span className="h-1 w-1 bg-primary" aria-hidden />
               {t}
@@ -166,14 +165,14 @@ function Hero() {
         {/* Top meta row */}
         <Reveal>
           <div className="mb-12 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
-            <div className="flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
-              <span className="text-foreground">A —</span>
+            <div className="flex items-center gap-3 text-[12px] font-medium tracking-tight text-muted-foreground">
+              <span className="font-display num-tabular text-foreground">A —</span>
               <span>Integrated Campus Energy &amp; Circular Utility Blueprint</span>
             </div>
-            <div className="flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+            <div className="flex items-center gap-3 text-[12px] font-medium tracking-tight text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 animate-pulse bg-primary" aria-hidden />
-                LIVE PILOT — BLOCK A
+                Live pilot — Block A
               </span>
               <span className="hidden sm:inline">·</span>
               <span className="hidden sm:inline">v0.1 · 2026</span>
@@ -182,7 +181,6 @@ function Hero() {
         </Reveal>
 
         <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-12">
-          {/* Left column */}
           <div className="lg:col-span-7">
             <Reveal delay={0.05}>
               <SectionEyebrow index="00" label="Overview" />
@@ -206,7 +204,7 @@ function Hero() {
                 <Link href="/dashboard">
                   <Button
                     size="lg"
-                    className="h-11 w-full gap-2 bg-foreground px-5 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-background hover:bg-foreground/90 sm:w-auto"
+                    className="h-11 w-full gap-2 bg-foreground px-5 text-[13px] font-semibold tracking-tight text-background hover:bg-foreground/90 sm:w-auto"
                     style={{ borderRadius: 'var(--radius)' }}
                   >
                     Open Dashboard
@@ -217,7 +215,7 @@ function Hero() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="h-11 w-full gap-2 border border-border bg-card px-5 font-mono text-[11px] font-medium uppercase tracking-[0.2em] hover:bg-muted sm:w-auto"
+                    className="h-11 w-full gap-2 border border-border bg-card px-5 text-[13px] font-semibold tracking-tight hover:bg-muted sm:w-auto"
                     style={{ borderRadius: 'var(--radius)' }}
                   >
                     <TrendingUp className="h-4 w-4" aria-hidden />
@@ -228,13 +226,12 @@ function Hero() {
               </div>
             </Reveal>
 
-            {/* Stats grid */}
             <Reveal delay={0.22}>
               <dl className="mt-14 grid max-w-2xl grid-cols-3 border-t border-border pt-6">
                 {[
-                  { k: '25%', v: 'Energy reduced', m: '/ blocks' },
-                  { k: '₹2.4 Cr', v: 'Annual savings', m: '/ verified' },
-                  { k: '3.8 yr', v: 'Payback period', m: '/ blended' },
+                  { k: '25%', v: 'Energy reduced', m: 'across blocks' },
+                  { k: '₹2.4 Cr', v: 'Annual savings', m: 'verified billing' },
+                  { k: '3.8 yr', v: 'Payback period', m: 'blended capex' },
                 ].map((s, i) => (
                   <div
                     key={s.v}
@@ -244,7 +241,7 @@ function Hero() {
                       {s.k}
                     </dt>
                     <dd className="mt-2 text-sm font-medium text-foreground">{s.v}</dd>
-                    <dd className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    <dd className="mt-0.5 text-[11px] text-muted-foreground">
                       {s.m}
                     </dd>
                   </div>
@@ -273,19 +270,19 @@ function Hero() {
                   </Tag>
                 </div>
                 <div className="absolute right-3 top-3">
-                  <Tag tone="muted">REC #ARS-0421</Tag>
+                  <Tag tone="muted" className="font-mono normal-case tracking-[0.04em]">
+                    REC&nbsp;#ARS-0421
+                  </Tag>
                 </div>
               </div>
               <div className="space-y-5 p-5">
                 <div className="flex items-end justify-between gap-3">
                   <div>
-                    <p className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
-                      Today's solar yield
-                    </p>
-                    <p className="mt-1 font-display num-tabular text-3xl font-semibold tracking-tighter">
+                    <Kicker>Today's solar yield</Kicker>
+                    <p className="font-display num-tabular mt-1 text-3xl font-semibold tracking-tighter">
                       612 <span className="text-base font-medium text-muted-foreground">kWh</span>
                     </p>
-                    <p className="mt-1 inline-flex items-center gap-1 font-mono text-xs font-medium text-primary">
+                    <p className="mt-1 inline-flex items-center gap-1 text-[12px] font-semibold text-primary">
                       ↑ 12.4% vs yesterday
                     </p>
                   </div>
@@ -317,10 +314,10 @@ function Hero() {
                     ['Bottles', '2,841'],
                   ].map(([k, v], i) => (
                     <div key={k} className={i !== 0 ? 'border-l border-border pl-3' : ''}>
-                      <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                        {k}
+                      <Kicker>{k}</Kicker>
+                      <p className="font-display num-tabular mt-1 text-base font-semibold tracking-tight">
+                        {v}
                       </p>
-                      <p className="mt-1 font-mono num-tabular text-base font-semibold">{v}</p>
                     </div>
                   ))}
                 </div>
@@ -329,11 +326,10 @@ function Hero() {
           </Reveal>
         </div>
 
-        {/* Scroll affordance */}
         <Reveal delay={0.25}>
           <a
             href="#problem"
-            className="mt-16 flex w-fit items-center gap-2 border border-border bg-card px-3 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+            className="mt-16 flex w-fit items-center gap-2 border border-border bg-card px-3 py-1.5 text-[12px] font-medium tracking-tight text-muted-foreground hover:text-foreground"
             style={{ borderRadius: 'var(--radius)' }}
           >
             <ArrowDown className="h-3.5 w-3.5" aria-hidden />
@@ -367,16 +363,16 @@ function ProblemSection() {
                   <div className="flex h-10 w-10 items-center justify-center border border-border bg-background text-foreground transition-colors group-hover:border-primary/40 group-hover:text-primary">
                     <p.icon className="h-5 w-5" aria-hidden />
                   </div>
-                  <span className="font-mono text-[11px] font-medium tracking-[0.18em] text-muted-foreground">
-                    P/{String(i + 1).padStart(2, '0')}
+                  <span className="font-display num-tabular text-sm text-muted-foreground">
+                    0{i + 1}
                   </span>
                 </div>
                 <h3 className="font-display mt-6 text-lg font-semibold leading-snug tracking-tight">
                   {p.title}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.desc}</p>
-                <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
-                  <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-primary">
+                <div className="mt-6 border-t border-border pt-4">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
                     {p.stat}
                   </span>
                 </div>
@@ -415,8 +411,8 @@ function SolutionsSection() {
                 </div>
                 <div className="space-y-3 p-5">
                   <div className="flex items-baseline gap-2">
-                    <span className="font-mono text-[11px] font-medium tracking-[0.2em] text-muted-foreground">
-                      M/{String(i + 1).padStart(2, '0')}
+                    <span className="font-display num-tabular text-sm text-muted-foreground">
+                      {String(i + 1).padStart(2, '0')}
                     </span>
                     <h3 className="font-display text-base font-semibold leading-snug tracking-tight">
                       {s.title}
@@ -454,9 +450,7 @@ function ChartFrame({ title, subtitle, children, className = '' }) {
       <div className="flex items-start justify-between border-b border-border p-5">
         <div>
           <h3 className="font-display text-base font-semibold leading-tight tracking-tight">{title}</h3>
-          <p className="mt-1 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            {subtitle}
-          </p>
+          {subtitle && <Kicker className="mt-1 block">{subtitle}</Kicker>}
         </div>
         <Tag tone="primary">
           <Activity className="h-3 w-3" aria-hidden />
@@ -466,6 +460,14 @@ function ChartFrame({ title, subtitle, children, className = '' }) {
       <div className="h-[300px] p-3">{children}</div>
     </Card>
   )
+}
+
+const tooltipStyle = {
+  background: 'hsl(var(--popover))',
+  border: '1px solid hsl(var(--border))',
+  borderRadius: 2,
+  fontSize: 12,
+  fontFamily: 'var(--font-sora)',
 }
 
 function KpiSnapshot() {
@@ -481,7 +483,7 @@ function KpiSnapshot() {
             <Link href="/dashboard">
               <Button
                 size="lg"
-                className="h-11 gap-2 bg-foreground px-5 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-background hover:bg-foreground/90"
+                className="h-11 gap-2 bg-foreground px-5 text-[13px] font-semibold tracking-tight text-background hover:bg-foreground/90"
                 style={{ borderRadius: 'var(--radius)' }}
               >
                 Open Full Console
@@ -491,17 +493,14 @@ function KpiSnapshot() {
           }
         />
 
-        {/* KPI tiles */}
         <div className="mt-14 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
           {KPIS.map((k, i) => (
             <Reveal key={k.label} delay={i * 0.05}>
               <div className="relative h-full bg-card p-5">
                 <div className="flex items-start justify-between">
-                  <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                    {k.label}
-                  </p>
-                  <span className="font-mono text-[10px] font-medium tracking-[0.18em] text-muted-foreground">
-                    K/{String(i + 1).padStart(2, '0')}
+                  <Kicker>{k.label}</Kicker>
+                  <span className="font-display num-tabular text-sm text-muted-foreground">
+                    {String(i + 1).padStart(2, '0')}
                   </span>
                 </div>
                 <p className="font-display num-tabular mt-4 text-4xl font-semibold tracking-tighter">
@@ -514,7 +513,6 @@ function KpiSnapshot() {
           ))}
         </div>
 
-        {/* Charts */}
         <div className="mt-6 grid gap-5 lg:grid-cols-3">
           <Reveal className="lg:col-span-2">
             <ChartFrame title="Monthly Savings vs Baseline" subtitle="₹ Lakhs · 12-month rolling">
@@ -523,21 +521,8 @@ function KpiSnapshot() {
                   <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }} />
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }} />
-                  <Tooltip
-                    cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }}
-                    contentStyle={{
-                      background: 'hsl(var(--popover))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: 2,
-                      fontSize: 11,
-                      fontFamily: 'var(--font-mono)',
-                    }}
-                  />
-                  <Legend
-                    wrapperStyle={{ fontSize: 11, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.16em' }}
-                    iconType="square"
-                    iconSize={9}
-                  />
+                  <Tooltip cursor={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }} contentStyle={tooltipStyle} />
+                  <Legend wrapperStyle={{ fontSize: 12, fontFamily: 'var(--font-sora)' }} iconType="square" iconSize={9} />
                   <Line type="monotone" dataKey="baseline" name="Baseline" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
                   <Line type="monotone" dataKey="savings" name="With ARASAKA" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 2.5, strokeWidth: 0, fill: 'hsl(var(--primary))' }} activeDot={{ r: 5 }} />
                 </LineChart>
@@ -549,26 +534,13 @@ function KpiSnapshot() {
             <ChartFrame title="Revenue & Savings Mix" subtitle="Share of value">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Tooltip
-                    contentStyle={{
-                      background: 'hsl(var(--popover))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: 2,
-                      fontSize: 11,
-                      fontFamily: 'var(--font-mono)',
-                    }}
-                  />
+                  <Tooltip contentStyle={tooltipStyle} />
                   <Pie data={REVENUE_MIX} dataKey="value" nameKey="name" innerRadius={50} outerRadius={94} paddingAngle={2} stroke="hsl(var(--background))" strokeWidth={2}>
                     {REVENUE_MIX.map((_, i) => (
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Legend
-                    verticalAlign="bottom"
-                    iconType="square"
-                    iconSize={9}
-                    wrapperStyle={{ fontSize: 10, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.14em' }}
-                  />
+                  <Legend verticalAlign="bottom" iconType="square" iconSize={9} wrapperStyle={{ fontSize: 11, fontFamily: 'var(--font-sora)' }} />
                 </PieChart>
               </ResponsiveContainer>
             </ChartFrame>
@@ -581,16 +553,7 @@ function KpiSnapshot() {
                   <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }} />
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={{ stroke: 'hsl(var(--border))', strokeWidth: 1 }} />
-                  <Tooltip
-                    cursor={{ fill: 'hsl(var(--accent))' }}
-                    contentStyle={{
-                      background: 'hsl(var(--popover))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: 2,
-                      fontSize: 11,
-                      fontFamily: 'var(--font-mono)',
-                    }}
-                  />
+                  <Tooltip cursor={{ fill: 'hsl(var(--accent))' }} contentStyle={tooltipStyle} />
                   <Bar dataKey="kwh" fill="hsl(var(--primary))" radius={[1, 1, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -627,9 +590,7 @@ function ROISection() {
                     </span>
                     <Tag tone="primary">{p.phase}</Tag>
                   </div>
-                  <span className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                    {p.horizon}
-                  </span>
+                  <Kicker>{p.horizon}</Kicker>
                 </div>
                 <div className="space-y-6 p-5">
                   <h3 className="font-display text-xl font-semibold leading-snug tracking-tight">
@@ -642,8 +603,8 @@ function ROISection() {
                       ['Payback', p.payback, ''],
                     ].map(([k, v, c], j) => (
                       <div key={k} className={j !== 0 ? 'border-l border-border p-3' : 'p-3'}>
-                        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">{k}</p>
-                        <p className={`mt-1 font-mono num-tabular text-base font-semibold ${c}`}>{v}</p>
+                        <Kicker>{k}</Kicker>
+                        <p className={`font-display num-tabular mt-1 text-base font-semibold tracking-tight ${c}`}>{v}</p>
                       </div>
                     ))}
                   </div>
@@ -728,7 +689,7 @@ function FlowSection() {
             ].map(([Icon, label]) => (
               <span
                 key={label}
-                className="inline-flex items-center gap-2 border border-border bg-card px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground"
+                className="inline-flex items-center gap-2 border border-border bg-card px-2.5 py-1 text-[11px] font-medium tracking-tight text-muted-foreground"
                 style={{ borderRadius: 'var(--radius)' }}
               >
                 <Icon className="h-3.5 w-3.5 text-primary" aria-hidden />
@@ -820,9 +781,7 @@ function TeamSection() {
                   </Avatar>
                   <div className="min-w-0">
                     <h3 className="font-display truncate text-lg font-semibold tracking-tight">{m.name}</h3>
-                    <p className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                      {m.role}
-                    </p>
+                    <Kicker className="block">{m.role}</Kicker>
                   </div>
                 </div>
                 <div className="space-y-4 p-5">
@@ -864,8 +823,9 @@ function CTASection() {
             <div className="absolute inset-0 dot-pattern opacity-[0.04]" aria-hidden />
             <div className="relative grid gap-8 p-10 sm:p-14 lg:grid-cols-12 lg:gap-12">
               <div className="lg:col-span-8">
-                <div className="flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-background/60">
-                  <span>08 —</span>
+                <div className="flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.16em] text-background/60">
+                  <span className="font-display num-tabular text-background">08</span>
+                  <span className="h-px w-8 bg-background/30" aria-hidden />
                   <span>Ready to build</span>
                 </div>
                 <h3 className="font-display mt-5 text-balance text-3xl font-semibold leading-tight tracking-tighter sm:text-4xl lg:text-5xl">
@@ -873,16 +833,16 @@ function CTASection() {
                 </h3>
                 <p className="mt-4 max-w-2xl text-base text-background/75">
                   Try the voice console — say{' '}
-                  <em className="font-mono not-italic text-primary">"open dashboard"</em>,{' '}
-                  <em className="font-mono not-italic text-primary">"show team"</em> or{' '}
-                  <em className="font-mono not-italic text-primary">"dark mode on"</em>.
+                  <span className="font-mono text-primary">"open dashboard"</span>,{' '}
+                  <span className="font-mono text-primary">"show team"</span> or{' '}
+                  <span className="font-mono text-primary">"dark mode on"</span>.
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row lg:col-span-4 lg:flex-col lg:items-end lg:justify-end">
                 <Link href="/dashboard">
                   <Button
                     size="lg"
-                    className="h-11 w-full gap-2 bg-primary px-5 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-primary-foreground hover:bg-primary/90 sm:w-auto"
+                    className="h-11 w-full gap-2 bg-primary px-5 text-[13px] font-semibold tracking-tight text-primary-foreground hover:bg-primary/90 sm:w-auto"
                     style={{ borderRadius: 'var(--radius)' }}
                   >
                     Open Dashboard
@@ -911,7 +871,7 @@ function Footer() {
           <div className="md:col-span-5">
             <div className="flex items-center gap-2.5">
               <span className="flex h-8 w-8 items-center justify-center bg-foreground text-background" style={{ borderRadius: 'var(--radius)' }}>
-                <span className="font-display text-xs font-extrabold tracking-tightest">A</span>
+                <span className="font-display text-sm font-bold tracking-tight">A</span>
               </span>
               <span className="font-display text-base font-semibold tracking-tight">ARASAKA</span>
             </div>
@@ -919,12 +879,12 @@ function Footer() {
               Integrated Campus Energy &amp; Circular Utility Blueprint. A unified
               operating layer for facilities, finance and sustainability teams.
             </p>
-            <p className="mt-5 font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+            <p className="mt-5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               v0.1 · Hackathon Build · 2026
             </p>
           </div>
           <div className="md:col-span-3">
-            <h4 className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">Sections</h4>
+            <Kicker>Sections</Kicker>
             <ul className="mt-4 space-y-2 text-sm">
               {[
                 ['hero', 'Home', '00'],
@@ -936,21 +896,21 @@ function Footer() {
               ].map(([id, label, n]) => (
                 <li key={id}>
                   <a href={'#' + id} className="group inline-flex items-center gap-3 transition-colors hover:text-primary">
-                    <span className="font-mono text-[10px] tracking-[0.22em] text-muted-foreground group-hover:text-primary">{n}</span>
+                    <span className="font-display num-tabular text-xs text-muted-foreground group-hover:text-primary">{n}</span>
                     <span className="font-medium">{label}</span>
                   </a>
                 </li>
               ))}
               <li>
                 <Link href="/dashboard" className="group inline-flex items-center gap-3 text-primary">
-                  <span className="font-mono text-[10px] tracking-[0.22em]">→</span>
-                  <span className="font-medium">Open Dashboard</span>
+                  <span className="font-display num-tabular text-xs">→</span>
+                  <span className="font-semibold">Open Dashboard</span>
                 </Link>
               </li>
             </ul>
           </div>
           <div className="md:col-span-4">
-            <h4 className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">Voice console</h4>
+            <Kicker>Voice console</Kicker>
             <ul className="mt-4 space-y-1.5 font-mono text-xs">
               {[
                 '> open dashboard',
@@ -965,10 +925,10 @@ function Footer() {
           </div>
         </div>
         <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-border pt-6 sm:flex-row sm:items-center">
-          <p className="font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
             © {new Date().getFullYear()} ARASAKA · Built for campuses that mean it.
           </p>
-          <div className="flex items-center gap-2 font-mono text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
             <Mic className="h-3.5 w-3.5" aria-hidden /> Accessibility-first · WCAG-friendly
           </div>
         </div>

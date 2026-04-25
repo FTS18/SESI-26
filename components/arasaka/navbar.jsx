@@ -27,7 +27,7 @@ function Logo() {
         className="relative flex h-7 w-7 items-center justify-center bg-foreground text-background"
         style={{ borderRadius: 'var(--radius)' }}
       >
-        <span className="font-display text-[11px] font-extrabold leading-none tracking-tighter">A</span>
+        <span className="font-display text-[12px] font-bold leading-none tracking-tight">A</span>
         <span className="absolute -right-0.5 -top-0.5 h-2 w-2 bg-primary" style={{ borderRadius: '1px' }} />
       </span>
       <span className="font-display text-[15px] font-semibold tracking-tight">ARASAKA</span>
@@ -70,7 +70,7 @@ export function Navbar() {
     >
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-primary focus:px-3 focus:py-2 focus:font-mono focus:text-[11px] focus:uppercase focus:tracking-[0.2em] focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-primary focus:px-3 focus:py-2 focus:text-[11px] focus:font-medium focus:uppercase focus:tracking-[0.16em] focus:text-primary-foreground"
       >
         Skip to content
       </a>
@@ -83,7 +83,7 @@ export function Navbar() {
               <button
                 role="menuitem"
                 onClick={() => goToSection(l.id)}
-                className="px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+                className="px-3 py-2 text-[12px] font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
               >
                 {l.label}
               </button>
@@ -94,7 +94,7 @@ export function Navbar() {
             <Link
               href="/dashboard"
               className={cn(
-                'inline-flex items-center gap-1 px-3 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.18em] transition-colors',
+                'inline-flex items-center gap-1 px-3 py-2 text-[12px] font-medium tracking-tight transition-colors',
                 pathname === '/dashboard'
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground',
@@ -114,7 +114,7 @@ export function Navbar() {
           <Link href="/dashboard" className="hidden sm:inline-flex">
             <Button
               size="sm"
-              className="h-9 bg-primary px-4 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-primary-foreground hover:bg-primary/90"
+              className="h-9 bg-primary px-4 text-[12px] font-semibold tracking-tight text-primary-foreground hover:bg-primary/90"
               style={{ borderRadius: 'var(--radius)' }}
             >
               Open Dashboard
@@ -145,9 +145,9 @@ export function Navbar() {
                   <button
                     key={l.id}
                     onClick={() => goToSection(l.id)}
-                    className="flex items-center gap-3 px-1 py-2 text-left font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-foreground/80 hover:text-foreground"
+                    className="flex items-center gap-3 px-1 py-2 text-left text-[13px] font-medium tracking-tight text-foreground/80 hover:text-foreground"
                   >
-                    <span className="text-muted-foreground">{l.n}</span>
+                    <span className="font-display num-tabular text-[11px] text-muted-foreground">{l.n}</span>
                     <span>{l.label}</span>
                   </button>
                 ))}
@@ -155,9 +155,9 @@ export function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-1 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-primary"
+                  className="flex items-center gap-3 px-1 py-2 text-[13px] font-semibold tracking-tight text-primary"
                 >
-                  <span>07</span>
+                  <span className="font-display num-tabular text-[11px]">07</span>
                   <span>Open Dashboard</span>
                   <ArrowUpRight className="ml-auto h-3 w-3" aria-hidden />
                 </Link>

@@ -2,7 +2,7 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 /**
- * Swiss‐style hairline card. 1px border, no shadow, subtle muted bg on hover.
+ * Hairline Swiss card.
  */
 export function Card({ className, children, accent = false, ...props }) {
   return (
@@ -20,7 +20,9 @@ export function Card({ className, children, accent = false, ...props }) {
   )
 }
 
-/** Swiss-style label tag — hairline outline, mono uppercase */
+/**
+ * Refined Swiss tag (no monospace by default).
+ */
 export function Tag({ className, children, tone = 'outline' }) {
   const tones = {
     outline: 'border border-border bg-transparent text-foreground',
@@ -33,7 +35,7 @@ export function Tag({ className, children, tone = 'outline' }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.2em]',
+        'inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em]',
         tones[tone],
         className,
       )}
@@ -44,13 +46,37 @@ export function Tag({ className, children, tone = 'outline' }) {
   )
 }
 
-/** Swiss section header with numerical index and rule */
+/**
+ * Numbered eyebrow with hairline rule. Index uses Chivo (display) tabular numbers,
+ * label uses Sora with refined letter-spacing.
+ */
 export function SectionEyebrow({ index, label, className }) {
   return (
-    <div className={cn('flex items-center gap-3 font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-muted-foreground', className)}>
-      <span className="text-foreground">{String(index).padStart(2, '0')}</span>
+    <div
+      className={cn(
+        'flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground',
+        className,
+      )}
+    >
+      {index != null && (
+        <span className="font-display num-tabular text-foreground">{String(index).padStart(2, '0')}</span>
+      )}
       <span className="h-px w-8 bg-border" aria-hidden />
       <span>{label}</span>
     </div>
+  )
+}
+
+/** Inline mini eyebrow without index */
+export function Kicker({ children, className }) {
+  return (
+    <span
+      className={cn(
+        'text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground',
+        className,
+      )}
+    >
+      {children}
+    </span>
   )
 }
