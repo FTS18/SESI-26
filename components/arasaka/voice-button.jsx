@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { Mic, MicOff, Volume2 } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { useRouter, usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useVoiceCommands } from '@/hooks/use-voice-commands'
 import { Button } from '@/components/ui/button'
@@ -16,8 +17,8 @@ const SECTION_MAP = {
   solution: 'solutions',
   solutions: 'solutions',
   modules: 'solutions',
-  dashboard: 'dashboard',
   kpi: 'dashboard',
+  kpis: 'dashboard',
   metrics: 'dashboard',
   roi: 'roi',
   flow: 'flow',
@@ -37,6 +38,8 @@ function scrollToId(id) {
 
 export function VoiceButton({ compact = false }) {
   const { setTheme } = useTheme()
+  const router = useRouter()
+  const pathname = usePathname()
   const [feedback, setFeedback] = React.useState(null)
 
   const showFeedback = (text) => {
@@ -48,15 +51,16 @@ export function VoiceButton({ compact = false }) {
   const handleCommand = React.useCallback(
     (raw) => {
       const cmd = raw.toLowerCase().trim()
+
       // Theme commands
       if (/(dark mode (on|enable)|enable dark|switch to dark|night mode)/.test(cmd)) {
         setTheme('dark')
-        showFeedback('Dark mode enabled')
+        showFeedback('Dark mode on')
         return
       }
       if (/(light mode|dark mode off|disable dark|day mode)/.test(cmd)) {
         setTheme('light')
-        showFeedback('Light mode enabled')
+        showFeedback('Light mode on')
         return
       }
       // Scroll commands
@@ -70,26 +74,45 @@ export function VoiceButton({ compact = false }) {
         showFeedback('Scrolling to top')
         return
       }
-      // Section navigation: "go to <section>", "open <section>", "show <section>"
+      // Dashboard / console navigation
+      if (/(open|show|go to)\s+(the\s+)?(dashboard|console)/.test(cmd) || /^dashboard$/.test(cmd) || /^console$/.test(cmd)) {
+        router.push('/dashboard')
+        showFeedback('Opening dashboard')
+        return
+      }
+      if (/(go|back)\s+home|go to home|home page/.test(cmd) || cmd === 'home') {
+        router.push('/')
+        showFeedback('Back to home')
+        return
+      }
+
+      // Section navigation
       const m = cmd.match(/(?:go to|open|show|navigate to|jump to)\s+(?:the\s+)?(\w+)/)
       if (m) {
         const target = SECTION_MAP[m[1]]
         if (target) {
-          scrollToId(target)
+          if (pathname !== '/') {
+            router.push('/#' + target)
+          } else {
+            scrollToId(target)
+          }
           showFeedback(`Opening ${m[1]}`)
           return
         }
       }
-      // Single-word fallback ("dashboard", "team", ...)
       const word = cmd.split(/\s+/).pop()
       if (word && SECTION_MAP[word]) {
-        scrollToId(SECTION_MAP[word])
+        if (pathname !== '/') {
+          router.push('/#' + SECTION_MAP[word])
+        } else {
+          scrollToId(SECTION_MAP[word])
+        }
         showFeedback(`Opening ${word}`)
         return
       }
       showFeedback(`Sorry, didn't catch that`)
     },
-    [setTheme],
+    [setTheme, router, pathname],
   )
 
   const { supported, listening, start, stop, transcript } = useVoiceCommands(handleCommand)
@@ -108,13 +131,15 @@ export function VoiceButton({ compact = false }) {
       <Button
         type="button"
         size={compact ? 'icon' : 'default'}
-        variant={listening ? 'default' : 'outline'}
         onClick={toggle}
         aria-label={listening ? 'Stop voice navigation' : 'Start voice navigation'}
         aria-pressed={listening}
+        style={{ borderRadius: 0 }}
         className={cn(
-          'relative gap-2 transition-all',
-          listening && 'bg-primary text-primary-foreground hover:bg-primary/90',
+          'border-2 border-foreground font-mono text-xs font-bold uppercase tracking-widest brutal-shadow-sm transition-transform hover:translate-x-[-1px] hover:translate-y-[-1px] hover:brutal-shadow',
+          listening
+            ? 'bg-primary text-primary-foreground hover:bg-primary'
+            : 'bg-background text-foreground hover:bg-background',
           compact && 'h-9 w-9',
         )}
       >
@@ -124,14 +149,12 @@ export function VoiceButton({ compact = false }) {
           <MicOff className="h-4 w-4" aria-hidden />
         )}
         {!compact && (
-          <span className="text-sm font-medium">
-            {listening ? 'Listening…' : 'Voice'}
-          </span>
+          <span className="ml-2">{listening ? 'Listening' : 'Voice'}</span>
         )}
         {listening && (
           <span className="absolute -right-1 -top-1 inline-flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary"></span>
+            <span className="absolute inline-flex h-full w-full animate-ping bg-primary opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 bg-primary" />
           </span>
         )}
       </Button>
@@ -142,16 +165,17 @@ export function VoiceButton({ compact = false }) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-24 left-1/2 z-[60] -translate-x-1/2"
+            transition={{ duration: 0.18 }}
+            className="fixed bottom-8 left-1/2 z-[60] -translate-x-1/2"
             role="status"
             aria-live="polite"
           >
-            <div className="flex items-center gap-2 rounded-full border border-border/70 bg-card/95 px-4 py-2 text-sm shadow-lg backdrop-blur">
-              <Volume2 className="h-4 w-4 text-primary" aria-hidden />
-              <span className="font-medium">
-                {feedback || `"${transcript}"`}
-              </span>
+            <div
+              className="flex items-center gap-2 border-2 border-foreground bg-background px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest brutal-shadow"
+              style={{ borderRadius: 0 }}
+            >
+              <Volume2 className="h-3.5 w-3.5 text-primary" aria-hidden />
+              <span>{feedback || `"${transcript}"`}</span>
             </div>
           </motion.div>
         )}
