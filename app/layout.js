@@ -23,7 +23,7 @@ const mono = JetBrains_Mono({
 })
 
 export const metadata = {
-  title: 'ARASAKA — Integrated Campus Energy & Circular Utility Blueprint',
+  title: 'Arasaka — Integrated Campus Energy & Circular Utility Blueprint',
   description:
     'One campus operating layer that cuts waste, prioritizes solar, and rewards recycling.',
   keywords: [

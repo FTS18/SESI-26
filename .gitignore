@@ -90,3 +90,4 @@ credentials.json
 *.pem
 *.key
 .credentials
+firebase-service-account.json

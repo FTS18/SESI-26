@@ -1,23 +1,17 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
   images: {
     unoptimized: true,
   },
-  experimental: {
-    // Remove if not using Server Components
-    serverComponentsExternalPackages: ['mongodb'],
+  // In Next.js 16, experimental.serverComponentsExternalPackages is now top-level serverExternalPackages
+  serverExternalPackages: [],
+  
+  // Explicitly enable Turbopack with default config to resolve Next.js 16 requirements
+  turbopack: {
+    root: process.cwd(),
   },
-  webpack(config, { dev }) {
-    if (dev) {
-      // Reduce CPU/memory from file watching
-      config.watchOptions = {
-        poll: 2000, // check every 2 seconds
-        aggregateTimeout: 300, // wait before rebuilding
-        ignored: ['**/node_modules'],
-      };
-    }
-    return config;
-  },
+
   onDemandEntries: {
     maxInactiveAge: 10000,
     pagesBufferLength: 2,

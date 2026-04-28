@@ -30,7 +30,7 @@ function Logo() {
         <span className="font-display text-[12px] font-bold leading-none tracking-tight">A</span>
         <span className="absolute -right-0.5 -top-0.5 h-2 w-2 bg-primary" style={{ borderRadius: '1px' }} />
       </span>
-      <span className="font-display text-[15px] font-semibold tracking-tight">ARASAKA</span>
+      <span className="font-display text-[15px] font-semibold tracking-tight">Arasaka</span>
     </Link>
   )
 }
