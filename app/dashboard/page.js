@@ -115,7 +115,7 @@ function getInitial(searchParams) {
   }
 }
 
-export default function DashboardPage() {
+function DashboardPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -962,5 +962,13 @@ export default function DashboardPage() {
     </motion.div>
     )}
     </AnimatePresence>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <DashboardPageContent />
+    </React.Suspense>
   )
 }
