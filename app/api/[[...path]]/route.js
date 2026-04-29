@@ -11,6 +11,8 @@ import {
   buildKpiTotals,
   buildClassroomHeatmap,
   MARKETPLACE_ITEMS,
+  ADS,
+  ALERTS,
 } from '@/lib/dashboard-data'
 
 function handleCORS(response) {
@@ -154,25 +156,41 @@ async function handleRoute(request, context) {
   const url = new URL(request.url)
 
   try {
-    // Attempt to seed if first run
-    await ensureSeeded().catch(e => console.warn('Firebase Seeding Skipped:', e.message))
+    // Attempt to seed asynchronously to avoid blocking the request
+    if (isFirebaseReady()) {
+      ensureSeeded().catch(e => console.warn('Firebase Seeding Skipped:', e.message))
+    }
 
     if (route === '/marketplace' && method === 'GET') {
-      const snap = await db.collection('arasaka_marketplace').get()
-      const items = snap.docs.map(doc => doc.data())
-      return handleCORS(NextResponse.json(items))
+      try {
+        const snap = await db.collection('arasaka_marketplace').get()
+        if (snap.empty) return handleCORS(NextResponse.json(MARKETPLACE_ITEMS))
+        const items = snap.docs.map(doc => doc.data())
+        return handleCORS(NextResponse.json(items))
+      } catch (e) {
+        return handleCORS(NextResponse.json(MARKETPLACE_ITEMS))
+      }
     }
 
     if (route === '/logs' && method === 'GET') {
-      const snap = await db.collection('arasaka_logs').orderBy('timestamp', 'desc').limit(20).get()
-      const logs = snap.docs.map(doc => doc.data())
-      return handleCORS(NextResponse.json(logs))
+      try {
+        const snap = await db.collection('arasaka_logs').orderBy('timestamp', 'desc').limit(20).get()
+        const logs = snap.docs.map(doc => doc.data())
+        return handleCORS(NextResponse.json(logs))
+      } catch (e) {
+        return handleCORS(NextResponse.json([]))
+      }
     }
 
     if (route === '/ads' && method === 'GET') {
-      const snap = await db.collection('arasaka_ads').get()
-      const ads = snap.docs.map(doc => doc.data())
-      return handleCORS(NextResponse.json(ads))
+      try {
+        const snap = await db.collection('arasaka_ads').get()
+        if (snap.empty) return handleCORS(NextResponse.json(ADS))
+        const ads = snap.docs.map(doc => doc.data())
+        return handleCORS(NextResponse.json(ads))
+      } catch (e) {
+        return handleCORS(NextResponse.json(ADS))
+      }
     }
 
     if (route === '/recycling/submit' && method === 'POST') {
@@ -259,8 +277,12 @@ async function handleRoute(request, context) {
     }
 
     if (route === '/alerts' && method === 'GET') {
-      const alerts = await readAlerts()
-      return handleCORS(NextResponse.json({ alerts }))
+      try {
+        const alerts = await readAlerts()
+        return handleCORS(NextResponse.json({ alerts }))
+      } catch (e) {
+        return handleCORS(NextResponse.json({ alerts: ALERTS }))
+      }
     }
 
     if (route === '/metrics' && method === 'GET') {

@@ -143,7 +143,13 @@ function DashboardPageContent() {
   const [isMaintenanceOpen, setIsMaintenanceOpen] = React.useState(false)
 
   React.useEffect(() => {
-    fetch('/api/ads').then(res => res.json()).then(setAds).catch(() => {})
+    fetch('/api/ads')
+      .then(res => res.json())
+      .then(res => {
+        if (Array.isArray(res)) setAds(res)
+        else if (res.ads && Array.isArray(res.ads)) setAds(res.ads)
+      })
+      .catch(() => {})
   }, [])
 
   // Live tick
@@ -198,7 +204,10 @@ function DashboardPageContent() {
   React.useEffect(() => {
     fetch('/api/alerts')
       .then((r) => r.json())
-      .then((res) => setAlerts(res?.alerts || []))
+      .then((res) => {
+        if (Array.isArray(res)) setAlerts(res)
+        else if (res?.alerts && Array.isArray(res.alerts)) setAlerts(res.alerts)
+      })
       .catch(() => {})
   }, [])
 
