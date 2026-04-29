@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/firebase-admin'
+import { db, isInitialized } from '@/lib/firebase-admin'
 import {
   BLOCKS,
   MODULES,
@@ -12,7 +12,6 @@ import {
   buildClassroomHeatmap,
   MARKETPLACE_ITEMS,
   ADS,
-  ALERTS,
 } from '@/lib/dashboard-data'
 
 function handleCORS(response) {
@@ -32,6 +31,7 @@ const isFirebaseReady = () => {
 }
 
 async function ensureSeeded() {
+  if (!isInitialized || !db) return
   if (!isFirebaseReady()) return
   
   const blocksRef = db.collection('arasaka_blocks')
@@ -123,6 +123,7 @@ async function ensureSeeded() {
 
 async function readBlocks() {
   try {
+    if (!isInitialized || !db) return BLOCKS
     const snap = await db.collection('arasaka_blocks').get()
     if (snap.empty) return BLOCKS
     return snap.docs
@@ -136,6 +137,7 @@ async function readBlocks() {
 
 async function readAlerts() {
   try {
+    if (!isInitialized || !db) return ALERTS
     const snap = await db.collection('arasaka_alerts').orderBy('_seededAt', 'desc').limit(50).get()
     if (snap.empty) return ALERTS
     return snap.docs.map(doc => {
@@ -156,13 +158,22 @@ async function handleRoute(request, context) {
   const url = new URL(request.url)
 
   try {
+    if (route === '/favicon.ico') {
+      return new NextResponse(null, { status: 404 })
+    }
+
+    if (route === '/health' || route === '/status-check') {
+      return handleCORS(NextResponse.json({ status: 'ok', db: isInitialized ? 'connected' : 'mock' }))
+    }
+
     // Attempt to seed asynchronously to avoid blocking the request
-    if (isFirebaseReady()) {
+    if (isInitialized && db && isFirebaseReady()) {
       ensureSeeded().catch(e => console.warn('Firebase Seeding Skipped:', e.message))
     }
 
     if (route === '/marketplace' && method === 'GET') {
       try {
+        if (!isInitialized) throw new Error('DB not initialized')
         const snap = await db.collection('arasaka_marketplace').get()
         if (snap.empty) return handleCORS(NextResponse.json(MARKETPLACE_ITEMS))
         const items = snap.docs.map(doc => doc.data())
@@ -174,6 +185,7 @@ async function handleRoute(request, context) {
 
     if (route === '/logs' && method === 'GET') {
       try {
+        if (!isInitialized) throw new Error('DB not initialized')
         const snap = await db.collection('arasaka_logs').orderBy('timestamp', 'desc').limit(20).get()
         const logs = snap.docs.map(doc => doc.data())
         return handleCORS(NextResponse.json(logs))
@@ -184,6 +196,7 @@ async function handleRoute(request, context) {
 
     if (route === '/ads' && method === 'GET') {
       try {
+        if (!isInitialized) throw new Error('DB not initialized')
         const snap = await db.collection('arasaka_ads').get()
         if (snap.empty) return handleCORS(NextResponse.json(ADS))
         const ads = snap.docs.map(doc => doc.data())
@@ -278,6 +291,7 @@ async function handleRoute(request, context) {
 
     if (route === '/alerts' && method === 'GET') {
       try {
+        if (!isInitialized) throw new Error('DB not initialized')
         const alerts = await readAlerts()
         return handleCORS(NextResponse.json({ alerts }))
       } catch (e) {
@@ -307,56 +321,54 @@ async function handleRoute(request, context) {
       const blocks = buildBlockSummary(range)
       const prior = compare ? buildPriorSeries({ rangeId: range, blockIds }) : null
 
-      // --- Automated Decision Logic Engine ---
       const solarToLoadRatio = totals.total > 0 ? totals.solar / totals.total : 0
       const routingMode = solarToLoadRatio > 0.8 ? 'SOLAR_PRIORITY' : 'GRID_HYBRID'
       
-      // Real Weather Integration (Simulated Fetch for Demo, can be replaced with actual API Key)
       let weatherData = { cloudCover: 20, temp: 28 }
-      try {
-        // Mocking a successful fetch to avoid 401s without user key
-        // In prod: const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Mumbai&appid=YOUR_KEY`)
-        // weatherData = await res.json()
-      } catch (e) {}
-
+      
       // Decision Logging (Audit Trail)
-      if (solarToLoadRatio > 0.8) {
-        const logRef = db.collection('arasaka_logs').doc()
-        // Only log if last log was more than 1 hour ago to avoid spam
-        const lastLogSnap = await db.collection('arasaka_logs').orderBy('timestamp', 'desc').limit(1).get()
-        const lastLog = lastLogSnap.docs[0]?.data()
-        
-        if (!lastLog || new Date() - new Date(lastLog.timestamp) > 3600000) {
-          await logRef.set({
-            type: 'DECISION',
-            module: 'SOLAR',
-            message: `Solar yield reached ${Math.round(solarToLoadRatio * 100)}%. System autonomously enabled SOLAR_PRIORITY routing.`,
-            timestamp: new Date().toISOString()
-          })
+      if (isInitialized && solarToLoadRatio > 0.8) {
+        try {
+          const logRef = db.collection('arasaka_logs').doc()
+          const lastLogSnap = await db.collection('arasaka_logs').orderBy('timestamp', 'desc').limit(1).get()
+          const lastLog = lastLogSnap.docs[0]?.data()
+          
+          if (!lastLog || new Date() - new Date(lastLog.timestamp) > 3600000) {
+            await logRef.set({
+              type: 'DECISION',
+              module: 'SOLAR',
+              message: `Solar yield reached ${Math.round(solarToLoadRatio * 100)}%. System autonomously enabled SOLAR_PRIORITY routing.`,
+              timestamp: new Date().toISOString()
+            })
+          }
+        } catch (e) {
+          console.warn('Metrics Decision Log Error:', e.message)
         }
       }
 
       // Anomaly Detection: Waste in Vacant Rooms
-      try {
-        const timetableSnap = await db.collection('arasaka_timetables').get()
-        const timetables = timetableSnap.docs.map(d => d.data())
-        
-        // Randomly check for waste to keep the dashboard active
-        if (Math.random() > 0.8) {
-          const slot = timetables[Math.floor(Math.random() * timetables.length)]
-          if (slot.status === 'vacant') {
-            await db.collection('arasaka_alerts').add({
-              severity: 'critical',
-              ts: new Date().toLocaleTimeString(),
-              block: `Block ${slot.blockId}`,
-              module: 'HVAC',
-              message: `Energy waste detected in ${slot.room}. Room is vacant but climate systems are at full load.`,
-              _seededAt: new Date().toISOString()
-            })
+      if (isInitialized) {
+        try {
+          const timetableSnap = await db.collection('arasaka_timetables').get()
+          if (!timetableSnap.empty) {
+            const timetables = timetableSnap.docs.map(d => d.data())
+            if (Math.random() > 0.8) {
+              const slot = timetables[Math.floor(Math.random() * timetables.length)]
+              if (slot.status === 'vacant') {
+                await db.collection('arasaka_alerts').add({
+                  severity: 'critical',
+                  ts: new Date().toLocaleTimeString(),
+                  block: `Block ${slot.blockId}`,
+                  module: 'HVAC',
+                  message: `Energy waste detected in ${slot.room}. Room is vacant but climate systems are at full load.`,
+                  _seededAt: new Date().toISOString()
+                })
+              }
+            }
           }
+        } catch (e) {
+          console.warn('Metrics Anomaly Error:', e.message)
         }
-      } catch (e) {
-        console.warn('Logic Engine Error:', e.message)
       }
 
       return handleCORS(
